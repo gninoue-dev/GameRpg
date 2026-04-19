@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Donjon RPG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="game-wrap">
+
+  <!-- HUD-->
+  <div id="hud">
+    <div class="hud-block">
+      <div class="hud-label">vie</div>
+      <div class="hud-bar-bg"><div class="hud-bar-fill" id="hud-hp-fill" style="width:100%"></div></div>
+      <div class="hud-text" id="hud-hp-text">30 / 30</div>
+    </div>
+    <div class="hud-block">
+      <div class="hud-label">expérience</div>
+      <div class="hud-bar-bg"><div class="hud-bar-fill" id="hud-xp-fill" style="width:0%"></div></div>
+      <div class="hud-text" id="hud-xp-text">0 / 10</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <div class="hud-stat">Nv <span id="hs-lvl">1</span></div>
+      <div class="hud-stat">⚔ <span id="hs-atk">5</span></div>
+      <div class="hud-stat">🛡 <span id="hs-def">2</span></div>
+      <div class="hud-stat">💰 <span id="hs-gold">0</span></div>
+      <div class="hud-stat">🏚 <span id="hs-floor">1</span></div>
+      <button class="btn-sm" id="btn-sound" onclick="toggleSound()">🔊 Son [M]</button>
+    </div>
+  </div>
+
+  <!-- Canvas + overlay -->
+  <div id="canvas-wrap">
+    <canvas id="gc" width="560" height="420"></canvas>
+    <div id="overlay" style="display:none">
+      <div id="ov-box">
+        <h3 id="ov-title"></h3>
+        <p id="ov-desc"></p>
+        <div id="ov-btns"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div id="log"></div>
+
+  <!-- Contrôles -->
+  <div id="bottom-row">
+
+    <!-- Desktop : D-pad + boutons texte -->
+    <div id="desktop-controls" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+      <div id="dpad">
+        <div></div><div class="dp" id="du">▲</div><div></div>
+        <div class="dp" id="dl">◀</div><div></div><div class="dp" id="dr">▶</div>
+        <div></div><div class="dp" id="dd">▼</div><div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button class="btn-sm green" id="btn-rest">⛺ Se reposer [R]</button>
+        <button class="btn-sm" id="btn-new">🗺 Nouveau donjon [N]</button>
+        <button class="btn-sm red" id="btn-att">⚔ Attaquer [Espace]</button>
+      </div>
+    </div>
+
+    <!-- Mobile : joystick + boutons ronds -->
+    <div id="joystick-wrap" style="display:none">
+      <div id="joystick-area">
+        <div id="joystick-base">
+          <div id="joystick-knob"></div>
+        </div>
+      </div>
+      <div id="mobile-buttons">
+        <div id="mobile-top-buttons">
+          <button class="btn-sm" id="btn-new-mobile"
+                  ontouchstart="initAudio();document.getElementById('btn-new').click()">🗺 Nouveau</button>
+        </div>
+        <div id="mobile-action-buttons">
+          <button id="mobile-rest"   class="mobile-btn green-btn">⛺</button>
+          <button id="mobile-attack" class="mobile-btn red-btn">⚔</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="sprites.js"></script>
+<script src="map.js"></script>
+<script src="ui.js"></script>
+<script src="sound.js"></script>
+<script src="game.js"></script>
+<script src="controls.js"></script>
+</body>
+</html>
