@@ -8,7 +8,7 @@ let audioCtx = null;
 let bgmGain  = null;
 let sfxGain  = null;
 let bgmNode  = null;   // nœud de musique de fond en cours
-let soundEnabled = true;
+let soundEnabled = (() => { try { return localStorage.getItem('rpg.sound') !== 'off'; } catch { return true; } })();
 
 // Initialise le contexte audio (doit être appelé après un geste utilisateur)
 function initAudio() {
@@ -25,7 +25,14 @@ function initAudio() {
   sfxGain.gain.value = 0.55;
   sfxGain.connect(audioCtx.destination);
 
+  setSoundEnabled(soundEnabled);
   startBGM();
+}
+
+// Les navigateurs mobiles suspendent l'audio : on le relance au besoin
+function resumeAudio() {
+  if (!audioCtx) initAudio();
+  else if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
 function setSoundEnabled(val) {
@@ -162,6 +169,67 @@ function sfxStep() {
   playNoise(0.04, 0.08, sfxGain, 0, 3000);
 }
 
+// Potion bue
+function sfxPotion() {
+  if (!audioCtx || !soundEnabled) return;
+  [300, 360, 450, 600, 800].forEach((f, i) => playTone(f, 'sine', 0.12, 0.25, sfxGain, i * 0.05));
+}
+
+// Coup critique
+function sfxCrit() {
+  if (!audioCtx || !soundEnabled) return;
+  playNoise(0.12, 0.8, sfxGain, 0, 2500);
+  playTone(880, 'square', 0.08, 0.3, sfxGain, 0);
+  playTone(1320, 'square', 0.1, 0.25, sfxGain, 0.06);
+}
+
+// Attaque esquivée
+function sfxMiss() {
+  if (!audioCtx || !soundEnabled) return;
+  playNoise(0.1, 0.25, sfxGain, 0, 5000);
+}
+
+// Ramasser de l'or
+function sfxCoin() {
+  if (!audioCtx || !soundEnabled) return;
+  playTone(988, 'square', 0.06, 0.25, sfxGain, 0);
+  playTone(1319, 'square', 0.12, 0.25, sfxGain, 0.06);
+}
+
+// Achat chez le marchand
+function sfxBuy() {
+  if (!audioCtx || !soundEnabled) return;
+  [659, 784, 988].forEach((f, i) => playTone(f, 'triangle', 0.1, 0.3, sfxGain, i * 0.06));
+}
+
+// Action impossible
+function sfxDenied() {
+  if (!audioCtx || !soundEnabled) return;
+  playTone(140, 'square', 0.12, 0.2, sfxGain, 0);
+}
+
+// Apparition d'un boss
+function sfxBoss() {
+  if (!audioCtx || !soundEnabled) return;
+  [110, 104, 98, 92].forEach((f, i) => {
+    playTone(f, 'sawtooth', 0.4, 0.4, sfxGain, i * 0.25);
+    playTone(f * 1.5, 'square', 0.4, 0.15, sfxGain, i * 0.25);
+  });
+  playNoise(1.0, 0.3, sfxGain, 0, 120);
+}
+
+// Victoire finale
+function sfxVictory() {
+  if (!audioCtx || !soundEnabled) return;
+  stopBGM();
+  const melody = [523, 523, 523, 659, 784, 659, 784, 1047];
+  const times  = [0, 0.15, 0.3, 0.45, 0.75, 0.95, 1.1, 1.4];
+  melody.forEach((f, i) => {
+    playTone(f, 'square', 0.25, 0.35, sfxGain, times[i]);
+    playTone(f / 2, 'triangle', 0.25, 0.25, sfxGain, times[i]);
+  });
+}
+
 // ── Musique de fond procédurale ──────────
 
 // Notes de la gamme pentatonique mineure pour l'ambiance donjon
@@ -222,12 +290,15 @@ function scheduleBGM() {
 
 function toggleSound() {
   soundEnabled = !soundEnabled;
-  if (!audioCtx && soundEnabled) initAudio();
-  else if (audioCtx) setSoundEnabled(soundEnabled);
+  try { localStorage.setItem('rpg.sound', soundEnabled ? 'on' : 'off'); } catch { /* stockage indisponible */ }
+  if (!audioCtx) initAudio();
+  setSoundEnabled(soundEnabled);
+  updateSoundButton();
+  if (soundEnabled) startBGM();
+  else stopBGM();
+}
 
+function updateSoundButton() {
   const btn = document.getElementById('btn-sound');
-  if (btn) btn.textContent = soundEnabled ? '🔊 Son [M]' : '🔇 Muet [M]';
-
-  if (soundEnabled && audioCtx && !bgmRunning) startBGM();
-  if (!soundEnabled) stopBGM();
+  if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
 }

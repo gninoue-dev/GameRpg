@@ -2,91 +2,94 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="description" content="Donjon RPG : un rogue-like tour par tour en JavaScript. 10 étages, boss, marchand, équipement et sauvegarde.">
   <title>Donjon RPG</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="game-wrap">
 
-  <!-- HUD-->
+  <!-- HUD -->
   <div id="hud">
-    <div class="hud-block">
-      <div class="hud-label">vie</div>
-      <div class="hud-bar-bg"><div class="hud-bar-fill" id="hud-hp-fill" style="width:100%"></div></div>
-      <div class="hud-text" id="hud-hp-text">30 / 30</div>
+    <div class="hud-bars">
+      <div class="hud-block">
+        <div class="hud-label">vie</div>
+        <div class="hud-bar-bg"><div class="hud-bar-fill" id="hud-hp-fill" style="width:100%"></div></div>
+        <div class="hud-text" id="hud-hp-text">30 / 30</div>
+      </div>
+      <div class="hud-block">
+        <div class="hud-label">expérience</div>
+        <div class="hud-bar-bg"><div class="hud-bar-fill" id="hud-xp-fill" style="width:0%"></div></div>
+        <div class="hud-text" id="hud-xp-text">0 / 10</div>
+      </div>
     </div>
-    <div class="hud-block">
-      <div class="hud-label">expérience</div>
-      <div class="hud-bar-bg"><div class="hud-bar-fill" id="hud-xp-fill" style="width:0%"></div></div>
-      <div class="hud-text" id="hud-xp-text">0 / 10</div>
-    </div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-      <div class="hud-stat">Nv <span id="hs-lvl">1</span></div>
-      <div class="hud-stat">⚔ <span id="hs-atk">5</span></div>
-      <div class="hud-stat">🛡 <span id="hs-def">2</span></div>
-      <div class="hud-stat">💰 <span id="hs-gold">0</span></div>
-      <div class="hud-stat">🏚 <span id="hs-floor">1</span></div>
-      <button class="btn-sm" id="btn-sound" onclick="toggleSound()">🔊 Son [M]</button>
+    <div class="hud-stats">
+      <div class="hud-stat" title="Niveau">Nv <span id="hs-lvl">1</span></div>
+      <div class="hud-stat" title="Attaque">⚔ <span id="hs-atk">5</span></div>
+      <div class="hud-stat" title="Défense">🛡 <span id="hs-def">2</span></div>
+      <div class="hud-stat" title="Or">💰 <span id="hs-gold">0</span></div>
+      <div class="hud-stat" title="Potions">🧪 <span id="hs-potions">1</span></div>
+      <div class="hud-stat" title="Étage">🏚 <span id="hs-floor">1</span></div>
+      <button class="btn-icon" id="btn-sound" title="Son [M]">🔊</button>
+      <button class="btn-icon" id="btn-menu" title="Menu [Échap]">☰</button>
     </div>
   </div>
 
-  <!-- Canvas + overlay -->
+  <div id="equipment">
+    <span>🗡 <b id="eq-weapon">Dague rouillée</b></span>
+    <span>🛡 <b id="eq-armor">Tunique</b></span>
+  </div>
+
+  <!-- Canvas + fenêtres -->
   <div id="canvas-wrap">
     <canvas id="gc" width="560" height="420"></canvas>
     <div id="overlay" style="display:none">
       <div id="ov-box">
         <h3 id="ov-title"></h3>
-        <p id="ov-desc"></p>
+        <div id="ov-desc"></div>
         <div id="ov-btns"></div>
       </div>
     </div>
   </div>
 
-  <!-- Log -->
-  <div id="log"></div>
+  <!-- Journal -->
+  <div id="log" aria-live="polite"></div>
 
-  <!-- Contrôles -->
-  <div id="bottom-row">
-
-    <!-- Desktop : D-pad + boutons texte -->
-    <div id="desktop-controls" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
-      <div id="dpad">
-        <div></div><div class="dp" id="du">▲</div><div></div>
-        <div class="dp" id="dl">◀</div><div></div><div class="dp" id="dr">▶</div>
-        <div></div><div class="dp" id="dd">▼</div><div></div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <button class="btn-sm green" id="btn-rest">⛺ Se reposer [R]</button>
-        <button class="btn-sm" id="btn-new">🗺 Nouveau donjon [N]</button>
-        <button class="btn-sm red" id="btn-att">⚔ Attaquer [Espace]</button>
-      </div>
+  <!-- Contrôles PC -->
+  <div id="desktop-controls">
+    <div id="dpad">
+      <div></div><button class="dp" id="du" aria-label="Haut">▲</button><div></div>
+      <button class="dp" id="dl" aria-label="Gauche">◀</button><div></div><button class="dp" id="dr" aria-label="Droite">▶</button>
+      <div></div><button class="dp" id="dd" aria-label="Bas">▼</button><div></div>
     </div>
-
-    <!-- Mobile : joystick + boutons ronds -->
-    <div id="joystick-wrap" style="display:none">
-      <div id="joystick-area">
-        <div id="joystick-base">
-          <div id="joystick-knob"></div>
-        </div>
-      </div>
-      <div id="mobile-buttons">
-        <div id="mobile-top-buttons">
-          <button class="btn-sm" id="btn-new-mobile"
-                  ontouchstart="initAudio();document.getElementById('btn-new').click()">🗺 Nouveau</button>
-        </div>
-        <div id="mobile-action-buttons">
-          <button id="mobile-rest"   class="mobile-btn green-btn">⛺</button>
-          <button id="mobile-attack" class="mobile-btn red-btn">⚔</button>
-        </div>
-      </div>
+    <div class="action-grid">
+      <button class="btn-sm red"   id="btn-att">⚔ Attaquer <kbd>Espace</kbd></button>
+      <button class="btn-sm pink"  id="btn-potion">🧪 Potion <kbd>H</kbd></button>
+      <button class="btn-sm green" id="btn-rest">⛺ Repos <kbd>R</kbd></button>
+      <button class="btn-sm"       id="btn-wait">⏳ Attendre <kbd>.</kbd></button>
+      <button class="btn-sm"       id="btn-map">🗺 Carte <kbd>C</kbd></button>
     </div>
-
   </div>
+
+  <!-- Contrôles mobile -->
+  <div id="mobile-controls">
+    <div id="joystick-base"><div id="joystick-knob"></div></div>
+    <div id="mobile-buttons">
+      <button id="mobile-menu"   class="mobile-btn small"      aria-label="Menu">☰</button>
+      <button id="mobile-rest"   class="mobile-btn green-btn"  aria-label="Repos">⛺</button>
+      <button id="mobile-potion" class="mobile-btn pink-btn"   aria-label="Potion">🧪<span class="potion-count badge">1</span></button>
+      <button id="mobile-attack" class="mobile-btn red-btn big" aria-label="Attaquer">⚔</button>
+    </div>
+  </div>
+
 </div>
 
+<script src="data.js"></script>
 <script src="sprites.js"></script>
 <script src="map.js"></script>
+<script src="render.js"></script>
 <script src="ui.js"></script>
 <script src="sound.js"></script>
 <script src="game.js"></script>
