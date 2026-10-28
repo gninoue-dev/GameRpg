@@ -27,15 +27,26 @@ function updateHUD() {
   $('hud-hp-text').textContent = player.hp + ' / ' + player.maxHp;
   $('hud-xp-fill').style.width = (player.xp / player.xpNext * 100) + '%';
   $('hud-xp-text').textContent = player.xp + ' / ' + player.xpNext;
-  $('hs-lvl').textContent    = player.lvl;
-  $('hs-atk').textContent    = totalAtk();
-  $('hs-def').textContent    = totalDef();
-  $('hs-gold').textContent   = player.gold;
-  $('hs-floor').textContent  = floorNum;
-  $('hs-potions').textContent = player.potions;
+  majStat('hs-lvl', player.lvl);
+  majStat('hs-atk', totalAtk());
+  majStat('hs-def', totalDef());
+  majStat('hs-gold', player.gold);
+  majStat('hs-floor', floorNum);
+  majStat('hs-potions', player.potions);
   $('eq-weapon').textContent = WEAPONS[player.weapon].name;
   $('eq-armor').textContent  = ARMORS[player.armor].name;
   document.querySelectorAll('.potion-count').forEach(el => { el.textContent = player.potions; });
+}
+
+// Change une valeur du HUD ; si elle a bougé, elle fait un petit saut
+function majStat(id, valeur) {
+  const el = $(id);
+  const texte = String(valeur);
+  if (el.textContent === texte) return;
+  el.textContent = texte;
+  el.classList.remove('saut');
+  void el.offsetWidth; // relance l'animation même si elle était en cours
+  el.classList.add('saut');
 }
 
 // ── Fenêtres (overlay) ──────────────────
@@ -63,7 +74,12 @@ function showOv(title, desc, btns, opts = {}) {
     btn.onclick = () => triggerOvButton(i);
     bc.appendChild(btn);
   });
-  $('ov-box').className = opts.theme || '';
+  const box = $('ov-box');
+  box.className = opts.theme || '';
+  // une fenêtre qui en remplace une autre rejoue aussi son ouverture
+  box.style.animation = 'none';
+  void box.offsetWidth;
+  box.style.animation = '';
   $('overlay').style.display = 'flex';
   const first = bc.querySelector('button:not(:disabled)');
   if (first) first.focus({ preventScroll: true });
