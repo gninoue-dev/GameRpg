@@ -271,3 +271,45 @@ body.touch #log { height: 60px; }
   .hud-bar-bg { width: 90px; }
   #canvas-wrap { border-width: 1px; }
 }
+
+/* ── Animations (style rétro : mouvements en paliers avec steps()) ── */
+/* Fenêtre qui s'ouvre comme dans un vieux RPG */
+#ov-box { animation: fenetreOuvre .28s steps(4) backwards; }
+@keyframes fenetreOuvre { from { transform: scale(.6, .1); opacity: .2; } 60% { transform: scale(1.04, 1); } }
+#ov-btns > * { animation: boutonArrive .3s steps(3) backwards; }
+#ov-btns > :nth-child(1) { animation-delay: 0.12s; }
+#ov-btns > :nth-child(2) { animation-delay: 0.17s; }
+#ov-btns > :nth-child(3) { animation-delay: 0.22s; }
+#ov-btns > :nth-child(4) { animation-delay: 0.27s; }
+#ov-btns > :nth-child(5) { animation-delay: 0.32s; }
+#ov-btns > :nth-child(6) { animation-delay: 0.37s; }
+#ov-btns > :nth-child(7) { animation-delay: 0.42s; }
+@keyframes boutonArrive { from { opacity: 0; transform: translateY(8px); } }
+
+/* Mort : l'écran tremble et rougit */
+#ov-box.death { animation: fenetreOuvre .28s steps(4) backwards, tremble .45s .28s steps(6); }
+#overlay:has(#ov-box.death) { animation: fadeIn .25s ease-out, flashRouge .6s ease-out; }
+@keyframes tremble { 20% { transform: translate(-4px, 2px); } 40% { transform: translate(4px, -2px); } 60% { transform: translate(-3px, -1px); } 80% { transform: translate(2px, 1px); } }
+@keyframes flashRouge { 0% { background: rgba(160,0,0,.55); } }
+
+/* Victoire : halo doré qui respire */
+#ov-box.victory { animation: fenetreOuvre .28s steps(4) backwards, haloOr 1.6s .3s ease-in-out infinite alternate; }
+@keyframes haloOr { to { box-shadow: 0 0 0 4px #0a0a0f, 0 0 60px rgba(241,196,15,.6); } }
+
+/* Titre de l'écran d'accueil qui clignote doucement */
+#ov-box.title h3 { animation: titreLueur 1.8s steps(6) infinite alternate; }
+@keyframes titreLueur { to { text-shadow: 0 0 22px rgba(179,136,255,.95); } }
+
+/* Journal : chaque nouvelle ligne glisse depuis la gauche */
+#log p:last-child { animation: ligneJournal .25s steps(3) backwards; }
+@keyframes ligneJournal { from { opacity: 0; transform: translateX(-10px); } }
+
+/* HUD : une valeur qui change fait un petit saut */
+.hud-stat span { display: inline-block; }
+.hud-stat span.saut { animation: saut .35s steps(4); }
+@keyframes saut { 50% { transform: translateY(-4px) scale(1.25); color: #fff; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #overlay, #ov-box, #ov-box.death, #ov-box.victory, #ov-box.title h3, #ov-btns > *, #log p:last-child, .hud-stat span.saut { animation: none !important; }
+}
+
